@@ -6,11 +6,23 @@ import json
 import io
 from PIL import Image
 import base64
+import os
+import requests
+
 
 app = Flask(__name__)
 
 MODEL_URL = "https://github.com/AirtonStuwar/FRUTAS/releases/tag/v1"
 MODEL_PATH = "modelo_frutas.h5"
+
+# Descarga el modelo si no existe
+if not os.path.exists(MODEL_PATH):
+    print("Descargando modelo...")
+    r = requests.get(MODEL_URL)
+    with open(MODEL_PATH, 'wb') as f:
+        f.write(r.content)
+
+model = load_model(MODEL_PATH)
 
 with open('etiquetas_frutas.json') as f:
     fruits = json.load(f)
