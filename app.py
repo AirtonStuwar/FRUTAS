@@ -9,8 +9,8 @@ import base64
 
 app = Flask(__name__)
 
-# Cargar el modelo y las etiquetas
-model = load_model('modelo_frutas.h5')
+MODEL_URL = "https://github.com/AirtonStuwar/FRUTAS/releases/tag/v1"
+MODEL_PATH = "modelo_frutas.h5"
 
 with open('etiquetas_frutas.json') as f:
     fruits = json.load(f)
