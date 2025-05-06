@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+    <style>
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background-color: #f0f4f8;
+          color: #333;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          padding: 2rem;
+          margin: 0;
+        }
+    
+        h1 {
+          color: #2c3e50;
+          margin-bottom: 1rem;
+        }
+    
+        video {
+            width: 200px;
+            height: 200px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border: 2px solid #3498db;
+        }
+
+
+    
+        #canvas {
+          display: none;
+        }
+    
+        button {
+          margin-top: 1rem;
+          padding: 10px 20px;
+          font-size: 16px;
+          background-color: #3498db;
+          color: white;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: background-color 0.3s ease;
+        }
+    
+        button:hover {
+          background-color: #2980b9;
+        }
+    
+        h2, p {
+          margin-top: 1.5rem;
+          font-size: 1.2rem;
+        }
+    
+        #label {
+          font-weight: bold;
+          color: #27ae60;
+        }
+    
+        #probability {
+          font-weight: bold;
+          color: #e67e22;
+        }
+      </style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predicción de Frutas</title>
+    <style>
+        #videoElement {
+            width: 100%;
+            height: auto;
+            border: 1px solid black;
+        }
+        #canvas {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Predicción de Frutas con la Cámara Web</h1>
+    <video id="videoElement" autoplay></video>
+    <button id="captureBtn">Capturar Imagen</button>
+    <canvas id="canvas" width="50" height="50"></canvas>
+
+    <h2>Predicción: <span id="label"></span></h2>
+    <p>Probabilidad: <span id="probability"></span></p>
+
+    <script>
+        // Acceder a la cámara web
+        const video = document.getElementById('videoElement');
+        const canvas = document.getElementById('canvas');
+        const captureBtn = document.getElementById('captureBtn');
+        const labelElement = document.getElementById('label');
+        const probabilityElement = document.getElementById('probability');
+
+        // Configuración de la cámara
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                video.srcObject = stream;
+            })
+            .catch((err) => {
+                console.log("Error al acceder a la cámara: ", err);
+            });
+
+        // Función para capturar la imagen de la cámara
+        captureBtn.addEventListener('click', () => {
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const imageData = canvas.toDataURL('image/jpeg');  // Convertir la imagen a base64
+            sendImageToServer(imageData);
+        });
+
+        // Enviar la imagen capturada al servidor
+        function sendImageToServer(imageData) {
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    image: imageData
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                labelElement.textContent = data.label;
+                probabilityElement.textContent = data.probability;
+            })
+            .catch(err => console.error('Error al enviar la imagen:', err));
+        }
+    </script>
+</body>
+</html>
+
